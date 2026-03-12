@@ -6,7 +6,7 @@ int main(int argc, char *argv[]){
         printf("ERRO: Numero insuficiente de arquivos!\n");
         return 0;
     }
-    char *valor;
+    int **valor;
     abrir_arquivos(argv[1], valor);
 
 }
