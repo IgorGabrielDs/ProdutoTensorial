@@ -2,7 +2,7 @@
 #include "arquivos.h"
 
 int main(int argc, char *argv[]){
-    if(argc<2 /*|| (argc + 1) % 2 != 0*/){ //3
+    if(argc<3){
         printf("ERRO: Numero incorreto de arquivos!\n");
         return 0;
     }
@@ -22,6 +22,7 @@ int main(int argc, char *argv[]){
             criar_arquivo(matriz_soma);
         }else{
             criar_arquivo(matriz_soma);
+            free(matriz_1);
         }
     return 0;
     }*/
