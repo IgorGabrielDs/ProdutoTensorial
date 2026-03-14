@@ -2,14 +2,13 @@
 #include <stdlib.h>
 
 int contar_colunas(FILE *arquivo){
-    int caracter, anterior = ' ';
-    int colunas = 0;
+    int caracter, valor, colunas = 0;
 
-    while ((caracter = fgetc(arquivo)) != EOF && caracter != '\n'){
-        if (anterior == ' ' && caracter != ' '){
-            colunas++;
+    while (fscanf(arquivo, "%d", &valor) == 1){
+        colunas++;
+        if(fgetc(arquivo) == '\n'){
+            break;
         }
-        anterior = caracter;
     }
     
     rewind(arquivo);
@@ -17,25 +16,33 @@ int contar_colunas(FILE *arquivo){
 }
 
 int contar_linhas(FILE *arquivo){
-    int caracter, linhas, anterior = 0;
-        linhas = 1;
+    //arrumar o caso de linhas extra vazia depois
+    int caracter, anterior = 0, linhas = 1;
+
         while((caracter = fgetc(arquivo)) != EOF){
-            if(anterior == ' ' && caracter == ' ' || anterior == '\n' && caracter == '\n' 
-            || anterior == ' ' && caracter == '\n' || anterior == '\n' && caracter == ' '){
+
+            if(anterior == '\n' && caracter == '\n' || 
+                anterior == ' ' && caracter == '\n' ||
+                anterior == '\n' && caracter == ' '){
+                
                 printf("ERRO: Formatação incorreta\n");
                 exit(1);
             }
-            if(caracter == '\n'){
+
+            if(caracter == '\n' || caracter ==  EOF){
                 linhas++;
             }
+
             anterior = caracter;
         }
     rewind(arquivo);
     return linhas;
 }
+
 void criar_matriz(FILE *arquivo, int ***matriz){
     int linhas = contar_linhas(arquivo);
     int colunas = contar_colunas(arquivo);
+    int caracter;
     (*matriz) = malloc(linhas * sizeof(int *));
     if ((*matriz) == NULL){
         printf("ERRO: Falha ao alocar dinamicamente\n");
@@ -48,8 +55,18 @@ void criar_matriz(FILE *arquivo, int ***matriz){
         exit(1);
     }
     }
-    (*matriz)[0][0] = 1;
-    
+    for(int i = 0; i<linhas;i++){
+        for(int j = 0; j<colunas;j++){
+            fscanf(arquivo, "%d", &(*matriz)[i][j]);
+        }
+    }
+
+    for(int i = 0; i<linhas;i++){
+        for(int j = 0; j<colunas;j++){
+            printf("%d ", (*matriz)[i][j]);
+        }
+        printf("\n");
+    }
 }
 
 void abrir_arquivos(char *argv, int ***matriz){
@@ -69,6 +86,8 @@ void abrir_arquivos(char *argv, int ***matriz){
         exit(1);
     }
     rewind(arquivo);
+    //printf("Colunas= %d\n", contar_colunas(arquivo));
+    //printf("Linhas= %d\n", contar_linhas(arquivo));
     criar_matriz(arquivo, matriz);
     fclose(arquivo);
 }

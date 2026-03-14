@@ -7,10 +7,10 @@ int main(int argc, char *argv[]){
         return 0;
     }
     int **matriz_1;
-    //int **matriz_2;
+    int **matriz_2;
     //int **matriz_soma;
     abrir_arquivos(argv[1], &matriz_1);
-    //abrir_arquivos(argv[2], &matriz_2);
+    abrir_arquivos(argv[2], &matriz_2);
     //calcular_tensor(matriz_1,matriz_2, &matriz_soma);
     /* if(argc > 3){
             int quantidade = argc - 3;
