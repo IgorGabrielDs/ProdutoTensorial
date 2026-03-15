@@ -16,25 +16,30 @@ int contar_colunas(FILE *arquivo){
 }
 
 int contar_linhas(FILE *arquivo){
-    //arrumar o caso de linhas extra vazia depois
-    int caracter, anterior = 0, linhas = 1;
+    int caracter, anterior = 0, linhas = 0, conteudo = 0;
 
-        while((caracter = fgetc(arquivo)) != EOF){
-
-            if(anterior == '\n' && caracter == '\n' || 
-                anterior == ' ' && caracter == '\n' ||
-                anterior == '\n' && caracter == ' '){
-                
-                printf("ERRO: Formatação incorreta\n");
-                exit(1);
-            }
-
-            if(caracter == '\n' || caracter ==  EOF){
-                linhas++;
-            }
-
-            anterior = caracter;
+    while((caracter = fgetc(arquivo)) != EOF){
+        if((anterior == '\n' && caracter == '\n') || 
+           (anterior == ' ' && caracter == '\n') ||
+           (anterior == '\n' && caracter == ' ')){
+            printf("ERRO: Formatação incorreta\n");
+            exit(1);
         }
+        if(caracter != ' ' && caracter != '\n'){
+            conteudo = 1;
+        }
+        if(caracter == '\n'){
+            if(conteudo){
+                linhas++;
+                conteudo = 0;
+            }
+        }
+        anterior = caracter;
+    }
+    if(conteudo){
+        linhas++;
+    }
+
     rewind(arquivo);
     return linhas;
 }
@@ -60,13 +65,7 @@ void criar_matriz(FILE *arquivo, int ***matriz){
             fscanf(arquivo, "%d", &(*matriz)[i][j]);
         }
     }
-
-    for(int i = 0; i<linhas;i++){
-        for(int j = 0; j<colunas;j++){
-            printf("%d ", (*matriz)[i][j]);
-        }
-        printf("\n");
-    }
+    rewind(arquivo);
 }
 
 void abrir_arquivos(char *argv, int ***matriz){
@@ -86,8 +85,7 @@ void abrir_arquivos(char *argv, int ***matriz){
         exit(1);
     }
     rewind(arquivo);
-    //printf("Colunas= %d\n", contar_colunas(arquivo));
-    //printf("Linhas= %d\n", contar_linhas(arquivo));
+    //printf("Linhas = %d\n", contar_linhas(arquivo));
     criar_matriz(arquivo, matriz);
     fclose(arquivo);
 }
@@ -96,9 +94,14 @@ void criar_arquivo(int **matriz_soma, int linhas, int colunas){
     FILE *arquivo = fopen("tensor_igds.out","w");
     for(int i = 0; i<linhas; i++){
         for(int j = 0; j<colunas; j++){
-            fprintf(arquivo, "%d ", matriz_soma[i][j]);
+            fprintf(arquivo, "%d", matriz_soma[i][j]);
+            if(j < colunas-1){
+                fprintf(arquivo, " ");
+            }
         }
-        fprintf(arquivo, "\n");
+        if(i< linhas-1){
+            fprintf(arquivo, "\n");
+        }
     }
     fclose(arquivo);
 }
