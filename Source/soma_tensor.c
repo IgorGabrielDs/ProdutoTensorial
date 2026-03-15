@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include "arquivos.h"
 
-
 void calcular_tensor(char *argv1, char *argv2, int **matriz_1, int **matriz_2, int ***matriz_soma){
     FILE *arquivo1 = fopen(argv1, "r");
     FILE *arquivo2 = fopen(argv2, "r");
