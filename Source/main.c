@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include "arquivos.h"
 #include "soma_tensor.h"
-void liberar_matriz(int **matriz, int linhas){
+
+void free_matriz(int **matriz, int linhas){
     for(int i = 0; i < linhas; i++){
         free(matriz[i]);
     }
@@ -31,10 +32,10 @@ int main(int argc, char *argv[]){
             calcular_tensor("tensor_igds.out", argv[i], matriz_soma, matriz_extra, &nova_soma);
 
             int linhas_antigas = contar_linhas(fopen("tensor_igds.out", "r"));
-            liberar_matriz(matriz_soma, linhas_antigas);
+            free_matriz(matriz_soma, linhas_antigas);
 
             int linhas_extra = contar_linhas(fopen(argv[i], "r"));
-            liberar_matriz(matriz_extra, linhas_extra);
+            free_matriz(matriz_extra, linhas_extra);
 
             matriz_soma = nova_soma;
         }
