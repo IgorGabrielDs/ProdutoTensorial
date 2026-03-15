@@ -1,5 +1,27 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <pthread.h>
+
+typedef struct{
+    int inicio;
+    int fim;
+    int colunas;
+    int **matriz;
+} Dados;
+
+void *alocar_matriz(void *arg){
+    Dados *dados = (Dados *)arg;
+
+    for(int i = dados->inicio; i < dados->fim; i++){
+        dados->matriz[i] = malloc(dados->colunas * sizeof(int));
+        if (dados->matriz[i] == NULL){
+            printf("ERRO: Falha ao alocar dinamicamente\n");
+            exit(1);
+        }
+    }
+
+    return NULL;
+}
 
 int contar_colunas(FILE *arquivo){
     int caracter, valor, colunas = 0;
@@ -47,24 +69,39 @@ int contar_linhas(FILE *arquivo){
 void criar_matriz(FILE *arquivo, int ***matriz){
     int linhas = contar_linhas(arquivo);
     int colunas = contar_colunas(arquivo);
-    int caracter;
-    (*matriz) = malloc(linhas * sizeof(int *));
-    if ((*matriz) == NULL){
+
+    *matriz = malloc(linhas * sizeof(int *));
+    if (*matriz == NULL){
         printf("ERRO: Falha ao alocar dinamicamente\n");
         exit(1);
     }
-    for(int i = 0; i< contar_linhas(arquivo); i++){
-        (*matriz)[i] = malloc(colunas * sizeof(int));
-        if ((*matriz)[i] == NULL){
-        printf("ERRO: Falha ao alocar dinamicamente\n");
-        exit(1);
-    }
-    }
-    for(int i = 0; i<linhas;i++){
-        for(int j = 0; j<colunas;j++){
+
+    pthread_t t1, t2;
+    Dados dados1, dados2;
+    int meio = linhas / 2;
+
+    dados1.inicio = 0;
+    dados1.fim = meio;
+    dados1.colunas = colunas;
+    dados1.matriz = *matriz;
+
+    dados2.inicio = meio;
+    dados2.fim = linhas;
+    dados2.colunas = colunas;
+    dados2.matriz = *matriz;
+
+    pthread_create(&t1, NULL, alocar_matriz, &dados1);
+    pthread_create(&t2, NULL, alocar_matriz, &dados2);
+
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+
+    for(int i = 0; i < linhas; i++){
+        for(int j = 0; j < colunas; j++){
             fscanf(arquivo, "%d", &(*matriz)[i][j]);
         }
     }
+
     rewind(arquivo);
 }
 
@@ -85,21 +122,20 @@ void abrir_arquivos(char *argv, int ***matriz){
         exit(1);
     }
     rewind(arquivo);
-    //printf("Linhas = %d\n", contar_linhas(arquivo));
     criar_matriz(arquivo, matriz);
     fclose(arquivo);
 }
 
 void criar_arquivo(int **matriz_soma, int linhas, int colunas){
     FILE *arquivo = fopen("tensor_igds.out","w");
-    for(int i = 0; i<linhas; i++){
-        for(int j = 0; j<colunas; j++){
+    for(int i = 0; i < linhas; i++){
+        for(int j = 0; j < colunas; j++){
             fprintf(arquivo, "%d", matriz_soma[i][j]);
             if(j < colunas-1){
                 fprintf(arquivo, " ");
             }
         }
-        if(i< linhas-1){
+        if(i < linhas-1){
             fprintf(arquivo, "\n");
         }
     }
